@@ -137,6 +137,64 @@ If this check passes, every later line can safely refer to the columns it needs.
 
 “I validate the worksheet before reading records. The code confirms the expected table exists, treats the first row as the schema, and stops early if that schema differs from the documented SwingVision layout.”
 
+## Section 5 — Read and validate Point and Shot
+
+The script identifies the two needed columns by their header names:
+
+```python
+point_column = headers.index("Point")
+shot_column = headers.index("Shot")
+```
+
+`.index(...)` returns the position of a value in a list. It finds where `Point` and `Shot` appear in the header row, so the script can read those fields even if we later decide to allow a different source-column order.
+
+Next, it visits every remaining row:
+
+```python
+pairs = []
+for row in rows:
+    if all(value is None for value in row):
+        continue
+```
+
+`pairs` starts as an empty list. Each nonblank row contributes one `(Point, Shot)` pair. `continue` skips completely empty trailing rows that sometimes appear at the bottom of spreadsheets.
+
+For each row, the script reads the two values and tests them:
+
+```python
+point = row[point_column]
+shot = row[shot_column]
+```
+
+Both values must be positive whole numbers. The program rejects:
+
+- blank or text values;
+- decimal values such as `1.5`;
+- zero or negative values;
+- true/false values, which Python otherwise treats like numbers.
+
+If a value fails, the script stops:
+
+```python
+raise ValueError("Point and Shot must be positive whole numbers.")
+```
+
+When both values pass, the script converts them to regular integers and saves the pair:
+
+```python
+pairs.append((int(point), int(shot)))
+```
+
+A pair such as `(12, 3)` means Shot 3 within source Point 12. The list of pairs becomes the input for the duplicate-key and shot-numbering checks.
+
+### Why this matters
+
+The script previously showed that `Point + Shot` uniquely identifies all 596 recorded shots in this match. That conclusion only stays trustworthy if each component is present and numeric. This validation protects the evidence behind the composite key.
+
+### Interview explanation
+
+“I first validated the components of my composite key. Every source Point and Shot value had to be a positive whole number before I used the pair to test uniqueness or sequence continuity.”
+
 ## Next section
 
-Read the Point and Shot values and check that each is a valid positive whole number.
+Count `Point + Shot` pairs to test whether the proposed identifier is unique.
