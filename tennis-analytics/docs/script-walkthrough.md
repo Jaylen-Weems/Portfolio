@@ -234,6 +234,61 @@ Across multiple matches, the complete identifier will be `Match ID + Point + Sho
 
 “I tested the composite key by counting every Point-and-Shot pair with Python’s Counter. The export had 596 records and 596 distinct pairs, so I found no duplicate shot identifiers within that match. I would add Match ID when combining matches.”
 
-## Next section
+## Section 7 — Check sequence continuity
 
-Group Shot numbers by Point and test whether each source sequence is numbered consecutively.
+The script groups Shot values under their Point number:
+
+    shots_by_point = defaultdict(list)
+    for point, shot in pairs:
+        shots_by_point[point].append(shot)
+
+defaultdict(list) is a dictionary that automatically starts a new empty list when it sees a Point number for the first time. After the loop, its contents could look like:
+
+    {
+        1: [1, 2, 3, 4, 5, 6],
+        2: [1, 2],
+        3: [1, 2],
+    }
+
+The script then tests each list:
+
+    for shots in shots_by_point.values():
+        if sorted(shots) != list(range(1, len(shots) + 1)):
+            sequence_failures += 1
+
+sorted(shots) puts the observed shot numbers in order. range(1, len(shots) + 1) creates the expected sequence: start at 1 and end at the number of shots in that group.
+
+| Observed values | Expected values | Result |
+|---|---|---|
+| [1, 2, 3] | [1, 2, 3] | Pass |
+| [1, 3] | [1, 2] | Fail |
+| [2, 3] | [1, 2] | Fail |
+
+For your export, all 188 source sequences passed. They each begin at Shot 1 and have no internal numbering gaps. Recorded sequence lengths range from 1 to 14 shots.
+
+This test does **not** prove every real-world shot was tracked. A recording system could omit a shot yet still assign consecutive numbers to the remaining rows. It also does not treat gaps between Point numbers as a failure; those are separate source sequences, not missing Shot numbers inside one sequence.
+
+Finally, the script prints aggregate results and returns PASS only when both the duplicate-key check and continuity check have no failures.
+
+### Interview explanation
+
+“I grouped shot numbers by their source Point and compared each group with the expected sequence starting at one. All 188 groups were consecutive, which supports internal numbering consistency. I documented that this validates the export’s numbering, not complete capture of every real-world shot.”
+
+## Current script summary
+
+The validator now proceeds in this order:
+
+1. Ask the user to choose a workbook.
+2. Open it read-only.
+3. Confirm the Shots worksheet and its 25-header schema.
+4. Validate positive whole-number Point and Shot values.
+5. Test Point + Shot for duplicates.
+6. Test Shot-number continuity within each Point.
+7. Print aggregate results without personal names or source rows.
+
+The script establishes a reliable local starting point for this one export. It does not yet validate every field, interpret scoring, transform data, load a database, or create performance metrics. Those will be separate, documented milestones.
+
+## Next small step
+
+Choose the next source field to understand and validate. The best first candidate is Type, because it describes each shot’s role in the sequence: serve, return, serve-plus-one, return-plus-one, or in-play.
+
