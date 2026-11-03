@@ -101,6 +101,42 @@ This is cleanup. It releases the file after reading so Excel or another program 
 
 “I made the validator reusable with a file picker and opened each workbook in read-only mode. The code does not save the file, and its cleanup block closes the workbook even when validation stops because of a problem.”
 
+## Section 4 — Find the Shots table
+
+After opening the workbook, the script first checks that a worksheet named `Shots` exists:
+
+```python
+if "Shots" not in workbook.sheetnames:
+    raise ValueError("The workbook does not contain a Shots worksheet.")
+```
+
+`workbook.sheetnames` is the list of worksheet names in the file. This check prevents an unclear error later if the wrong workbook is selected or SwingVision changes the worksheet name.
+
+Then the script selects that worksheet and prepares to read it one row at a time:
+
+```python
+sheet = workbook["Shots"]
+rows = sheet.iter_rows(values_only=True)
+headers = list(next(rows))
+```
+
+`sheet` is the selected worksheet. `iter_rows` creates an **iterator**, which means Python can work through rows one at a time instead of loading the entire worksheet into a custom structure first.
+
+`next(rows)` takes the first available row. In an exported data table, that first row is the header row—the labels such as `Player`, `Shot`, and `Point`. `list(...)` turns that row into an ordinary Python list so it can be compared with `EXPECTED_HEADERS`.
+
+The next test is the schema check:
+
+```python
+if headers != EXPECTED_HEADERS:
+    raise ValueError("Shots headers do not match the expected SwingVision layout.")
+```
+
+If this check passes, every later line can safely refer to the columns it needs. If it fails, the script stops before attempting any calculations.
+
+### Interview explanation
+
+“I validate the worksheet before reading records. The code confirms the expected table exists, treats the first row as the schema, and stops early if that schema differs from the documented SwingVision layout.”
+
 ## Next section
 
-Check the `Shots` worksheet and validate its headers.
+Read the Point and Shot values and check that each is a valid positive whole number.
