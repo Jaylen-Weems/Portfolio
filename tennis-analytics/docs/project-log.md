@@ -34,6 +34,14 @@ Ran the script locally against the original export. Result: 596 rows checked; 0 
 
 Learning: code turns a manual data-quality check into a repeatable process. File selection means the script can be reused with future exports without placing personal file paths in the code.
 
+## Step 5 — Validate the workbook layout
+
+Expanded `check_shots.py` with a fixed list of the 25 headers observed in the original export. Before reading records, the script now checks for a worksheet named `Shots` and compares the entire header row with that expected list, in order.
+
+Verified the update against the original workbook: the Shots worksheet is present, the 25 headers match, and the script compiles successfully. This new guard was added in VS Code. The interactive file-picker run remained open in VS Code after selection, so the saved code and workbook-layout check were verified directly rather than treating the still-running editor task as evidence.
+
+Learning: schema validation catches a changed or wrong input file at the start, before later checks can produce misleading results.
+
 ## Next small step
 
-Read the script section by section, then add one simple check for whether the expected worksheet and headers exist.
+Walk through the script's five sections and explain how each turns a data assumption into a check.
