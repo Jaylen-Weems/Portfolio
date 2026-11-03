@@ -54,6 +54,53 @@ The original workbook passed this check: it has a `Shots` worksheet and exactly 
 
 “Before analyzing shot data, I added a schema check. The script verifies the expected worksheet and its 25 headers so a source-format change fails early, instead of silently creating misleading analysis.”
 
+## Section 3 — Choose and open the workbook
+
+The script uses a file picker:
+
+```python
+file_path = filedialog.askopenfilename(
+    title="Choose your SwingVision export",
+    filetypes=[("Excel workbook", "*.xlsx")],
+)
+```
+
+This displays a window where you select the export you want to check. The selected location is stored temporarily in `file_path`. The location is not written into the script, printed in the report, or committed to GitHub.
+
+If you cancel the picker, the script ends immediately:
+
+```python
+if not file_path:
+    raise SystemExit("No file selected.")
+```
+
+That protects the rest of the program from trying to open an empty location.
+
+Next, the script opens the file:
+
+```python
+workbook = load_workbook(file_path, read_only=True, data_only=False)
+```
+
+`read_only=True` is the important setting. It tells the Excel library to read the workbook without preparing it for edits. The script also never calls a save function. Its job is to inspect, not modify.
+
+`data_only=False` preserves source cells as they are stored. It avoids making this validation step depend on recalculated formula results. Your SwingVision export is static data, but this setting makes the script's reading behavior explicit.
+
+The `try ... finally` block closes the workbook even if a check fails:
+
+```python
+try:
+    # inspect workbook contents
+finally:
+    workbook.close()
+```
+
+This is cleanup. It releases the file after reading so Excel or another program can use it normally.
+
+### Interview explanation
+
+“I made the validator reusable with a file picker and opened each workbook in read-only mode. The code does not save the file, and its cleanup block closes the workbook even when validation stops because of a problem.”
+
 ## Next section
 
-Choose the file and open the workbook in read-only mode.
+Check the `Shots` worksheet and validate its headers.
