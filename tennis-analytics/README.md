@@ -1,34 +1,30 @@
-# Tennis analytics
+# Tennis analytics platform
 
-A small Python project that turns one SwingVision Excel export into a concise, actionable match snapshot.
+A cloud data-engineering project built around private SwingVision match exports.
 
-## What it does
-
-`analyze_match.py` reads a local export and reports:
-
-- host-player shot count and Net/Out rate;
-- the non-serve stroke with the highest Net/Out rate, using strokes with at least 10 shots;
-- the most-used serve direction.
-
-The goal is a practical starting point for choosing one area to practice after a match. It is a baseline from one match, not a complete coaching system.
-
-## Run it
-
-Install the one dependency:
-
-```powershell
-python -m pip install openpyxl
+```text
+SwingVision Excel → Cloud Storage → Python ingestion → BigQuery → analysis
 ```
 
-Then run the script from this folder:
+## What is in the cloud
+
+- **Cloud Storage:** immutable raw exports; never public or committed to GitHub.
+- **BigQuery:** the `tennis_analytics` dataset for clean, queryable tables.
+- **GitHub:** code and short documentation, accessible from any device.
+
+## Scripts
+
+- `analyze_match.py` creates a concise local practice snapshot.
+- `ingest_shots.py` downloads one private export from Cloud Storage and appends its `Shots` worksheet to BigQuery. It refuses to load a source file twice.
+
+## Run the ingestion script
+
+Install dependencies and authenticate your local machine with Google Cloud before running:
 
 ```powershell
-python analyze_match.py "path\to\SwingVision-match.xlsx"
+python -m pip install -r requirements.txt
+python ingest_shots.py "SwingVision-match-2026-10-30 at 19.20.19.xlsx"
 ```
 
-The script reads the `Settings` and `Shots` worksheets without editing the workbook. Keep personal exports out of GitHub.
-
-## Next
-
-Run the script on more matches, track the same three measures, and choose one practice focus at a time. Add charts or deeper analysis only when they answer a specific tennis question.
+Raw match files stay out of GitHub. The next engineering step is to load the first export and query the resulting `shots` table.
 
