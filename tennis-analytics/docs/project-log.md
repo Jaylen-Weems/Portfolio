@@ -26,6 +26,14 @@ Learning: this checks internal numbering consistency. It does not prove that eve
 
 These checks were performed read-only on the actual local Excel export. The live Google Sheet was not inspected. No full contract validation, Settings validation, warehouse load or scoring reconstruction has been completed. This log reports aggregate checks only; the personal workbook and source rows remain outside public commits.
 
+## Step 4 — Create and run a reusable Python check
+
+Created `check_shots.py` in VS Code. The script asks the user to choose an Excel export, opens the workbook in read-only mode, reads the Shots worksheet, checks that Point + Shot is unique, and checks that Shot values are consecutive within each Point. It reports only aggregate counts.
+
+Ran the script locally against the original export. Result: 596 rows checked; 0 duplicate Point + Shot combinations; 188 sequences checked; 0 sequences with numbering problems; PASS. `openpyxl` was installed so Python could read `.xlsx` files.
+
+Learning: code turns a manual data-quality check into a repeatable process. File selection means the script can be reused with future exports without placing personal file paths in the code.
+
 ## Next small step
 
-Save a simple, readable Python script that reproduces the two checks, explaining its sections before introducing additional validation rules.
+Read the script section by section, then add one simple check for whether the expected worksheet and headers exist.
