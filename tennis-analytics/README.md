@@ -1,27 +1,34 @@
 # Tennis analytics
 
-A step-by-step portfolio project exploring how to turn SwingVision tennis exports into reliable data for analysis.
+A small Python project that turns one SwingVision Excel export into a concise, actionable match snapshot.
 
-## Purpose
+## What it does
 
-Build an understandable workflow, explain each engineering decision, and document the evidence behind it. The initial workflow is simple: Excel export → read-only Python checks → review the results.
+`analyze_match.py` reads a local export and reports:
 
-## Progress
+- host-player shot count and Net/Out rate;
+- the non-serve stroke with the highest Net/Out rate, using strokes with at least 10 shots;
+- the most-used serve direction.
 
-- Inspected the workbook structure: six worksheets and 25 Shots fields.
-- Checked all 596 shot records: Point + Shot is unique, with no missing key values.
-- Checked shot numbering: all 188 source sequences start at 1 and have no numbering gaps.
+The goal is a practical starting point for choosing one area to practice after a match. It is a baseline from one match, not a complete coaching system.
 
-These are initial checks on one export, not full data certification. The source Point field represents a serve-attempt sequence; it must not be counted as a completed scored tennis point.
+## Run it
 
-## Project documentation
+Install the one dependency:
 
-Read the [project log](docs/project-log.md) for each step's method, findings and limitations.
+```powershell
+python -m pip install openpyxl
+```
 
-## Data privacy
+Then run the script from this folder:
 
-Personal match exports, player-level source rows and credentials are excluded from this public project. Only aggregate validation findings are documented here.
+```powershell
+python analyze_match.py "path\to\SwingVision-match.xlsx"
+```
 
-## Next step
+The script reads the `Settings` and `Shots` worksheets without editing the workbook. Keep personal exports out of GitHub.
 
-Add a small Python script that reproduces the uniqueness and shot-number checks, then explain and document how it works. Future features will be introduced one at a time.
+## Next
+
+Run the script on more matches, track the same three measures, and choose one practice focus at a time. Add charts or deeper analysis only when they answer a specific tennis question.
+
