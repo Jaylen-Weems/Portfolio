@@ -195,6 +195,45 @@ The script previously showed that `Point + Shot` uniquely identifies all 596 rec
 
 “I first validated the components of my composite key. Every source Point and Shot value had to be a positive whole number before I used the pair to test uniqueness or sequence continuity.”
 
+## Section 6 — Test the composite key for duplicates
+
+The script counts each pair:
+
+```python
+pair_counts = Counter(pairs)
+```
+
+`Counter` is a Python tool that builds a frequency table. If the input list were:
+
+```python
+[(1, 1), (1, 2), (2, 1), (1, 1)]
+```
+
+the resulting counts would say that `(1, 1)` occurs twice, while `(1, 2)` and `(2, 1)` occur once.
+
+Then the script counts how many distinct pairs occur more than once:
+
+```python
+duplicate_pairs = sum(count > 1 for count in pair_counts.values())
+```
+
+Read this from the inside outward:
+
+- `pair_counts.values()` gives the counts, such as 1, 1, 2.
+- `count > 1` produces `True` for a repeated pair and `False` otherwise.
+- In Python, `sum` treats `True` as 1 and `False` as 0.
+- The result is the number of duplicated pair values, not the number of extra rows.
+
+For your workbook, the result was 0. With 596 rows and 596 distinct pairs, the proposed in-file key `Point + Shot` is unique for this export.
+
+This is a **composite key**: more than one field is needed to identify a record. `Point` alone repeats for every shot in a source sequence. `Shot` alone repeats across sequences. Together, they identify a recorded shot within one match.
+
+Across multiple matches, the complete identifier will be `Match ID + Point + Shot`, because another match can also have the pair `(1, 1)`.
+
+### Interview explanation
+
+“I tested the composite key by counting every Point-and-Shot pair with Python’s Counter. The export had 596 records and 596 distinct pairs, so I found no duplicate shot identifiers within that match. I would add Match ID when combining matches.”
+
 ## Next section
 
-Count `Point + Shot` pairs to test whether the proposed identifier is unique.
+Group Shot numbers by Point and test whether each source sequence is numbered consecutively.
