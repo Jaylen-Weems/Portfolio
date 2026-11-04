@@ -33,10 +33,11 @@ def read_shots(workbook_path, source_file):
         host_name = setting_values[setting_headers.index("Host Team")]
 
         sheet = workbook["Shots"]
-        headers = list(next(sheet.iter_rows(values_only=True)))
+        shot_rows = sheet.iter_rows(values_only=True)
+        headers = list(next(shot_rows))
         rows = [
             row
-            for row in sheet.iter_rows(values_only=True)
+            for row in shot_rows
             if any(value is not None for value in row)
         ]
     finally:
